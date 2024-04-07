@@ -1,7 +1,7 @@
 {
   "name": "scite-cli",
   "version": "1.0.0",
-  "description": "This is a basic project structure generated for demonstration purposes.",
+  "description": "A CLI tool that gives access to citation data, scite tallies, related paper metadata and scite reference check",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -15,6 +15,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/yargs": "^17.0.32",
     "@typescript-eslint/eslint-plugin": "^7.5.0",
     "@typescript-eslint/parser": "^7.5.0",
     "eslint": "^8.57.0",
@@ -22,5 +23,12 @@
     "prettier": "^3.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "dayjs": "^1.11.10",
+    "yargs": "^17.7.2",
+    "zod": "^3.22.4",
+    "zod-validation-error": "^3.1.0"
   }
 }
