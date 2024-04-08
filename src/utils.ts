@@ -81,11 +81,14 @@ export function createParser<T>(schema: z.ZodType<T>) {
  */
 export function validateDateString(date: string, format: string | string[]) {
   format = Array.isArray(format) ? format : [format];
+
   const isValid = dayjs(date, format, true).isValid();
 
   if (isValid) return date;
 
+  const stringified = format.map((f) => JSON.stringify(f));
+
   throw new Error(
-    `Validation error: Date must be in the format ${format.join(' or ')} and must be a valid date.`,
+    `Validation error: Date must be in the format ${stringified.join(' or ')} and must be a valid date.`,
   );
 }
