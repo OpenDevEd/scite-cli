@@ -10,9 +10,12 @@ import * as scite from './client';
 
 dayjs.extend(customParseFormat);
 
-export async function readConfig() {
-  const home = os.homedir();
-  const filepath = path.join(home, '.config', name, 'config.json');
+const home = os.homedir();
+const defaultConfigPath = path.join(home, '.config', name, 'config.json');
+
+export async function readConfig(filepath = defaultConfigPath) {
+  filepath = path.resolve(filepath);
+
   const content = await fs.readFile(filepath, 'utf8');
   const json = JSON.parse(content);
 
