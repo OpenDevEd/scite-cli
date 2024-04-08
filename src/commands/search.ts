@@ -8,6 +8,7 @@ import {
   GetSearchSearchGetSortEnum as SortEnum,
   GetSearchSearchGetSortOrderEnum as SortOrderEnum,
 } from '../client';
+import { InferArguments } from '../types';
 import {
   createParser,
   fromResponseError,
@@ -166,10 +167,7 @@ export function builder(yargs: Argv) {
     .describe('aggregations-options', 'Aggregations Options');
 }
 
-type BuilderReturnType = ReturnType<typeof builder>;
-type Arguments = Awaited<BuilderReturnType['argv']>;
-
-async function main(argv: Arguments) {
+async function main(argv: InferArguments<typeof builder>) {
   process.stderr.write('reading config file ... ');
 
   const config = await readConfig();
@@ -223,7 +221,7 @@ async function main(argv: Arguments) {
   await console.log(JSON.stringify(data.hits, null, 2));
 }
 
-export async function handler(argv: Arguments) {
+export async function handler(argv: InferArguments<typeof builder>) {
   try {
     await main(argv);
   } catch (error) {
