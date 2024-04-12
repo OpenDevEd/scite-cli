@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import fs from 'fs/promises';
+import path from 'path';
 import { Argv } from 'yargs';
 import { InferArguments } from '../types';
 import { configPath } from '../utils';
@@ -26,8 +27,14 @@ export async function main(argv: InferArguments<typeof builder>) {
 
   process.stderr.write('reading config ... ');
 
-  const content = await fs.readFile(configPath, 'utf8');
-  const json = JSON.parse(content);
+  let json;
+
+  try {
+    const content = await fs.readFile(configPath, 'utf8');
+    json = JSON.parse(content);
+  } catch (error) {
+    json = {};
+  }
 
   console.error(chalk.stderr.green('success'));
 
@@ -65,6 +72,7 @@ export async function main(argv: InferArguments<typeof builder>) {
 
   process.stderr.write('writing config ... ');
 
+  await fs.mkdir(path.dirname(configPath), { recursive: true });
   await fs.writeFile(configPath, JSON.stringify(json, null, 2));
 
   console.error(chalk.stderr.green('success'));

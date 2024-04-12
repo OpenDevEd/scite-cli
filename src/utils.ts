@@ -17,8 +17,14 @@ export const configPath = path.join(home, '.config', name, 'config.json');
  * @returns A Promise that resolves to a `scite.Configuration` instance.
  */
 export async function readConfig() {
-  const content = await fs.readFile(configPath, 'utf8');
-  const json = JSON.parse(content);
+  let json;
+
+  try {
+    const content = await fs.readFile(configPath, 'utf8');
+    json = JSON.parse(content);
+  } catch (error) {
+    json = {};
+  }
 
   return new scite.Configuration({
     basePath: json['base-path'] || 'https://api.scite.ai',
