@@ -10,20 +10,20 @@ import * as scite from './client';
 dayjs.extend(customParseFormat);
 
 const home = os.homedir();
-const defaultConfigPath = path.join(home, '.config', name, 'config.json');
+export const configPath = path.join(home, '.config', name, 'config.json');
 
 /**
- * Reads the configuration from a file.
- * @param filepath The path to the configuration file.
+ * Reads the configuration from the config file.
  * @returns A Promise that resolves to a `scite.Configuration` instance.
  */
-export async function readConfig(filepath = defaultConfigPath) {
-  filepath = path.resolve(filepath);
-
-  const content = await fs.readFile(filepath, 'utf8');
+export async function readConfig() {
+  const content = await fs.readFile(configPath, 'utf8');
   const json = JSON.parse(content);
 
-  return new scite.Configuration({ basePath: 'https://api.scite.ai', ...json });
+  return new scite.Configuration({
+    basePath: json['base-path'] || 'https://api.scite.ai',
+    accessToken: json['access-token'],
+  });
 }
 
 /**
