@@ -10,7 +10,10 @@ export const description = `Retrieve paper metadata by DOI(s).`;
 
 export function builder(yargs: Argv) {
   return yargs
-    .positional('doi', { type: 'string', array: true, demandOption: true })
+    .positional('doi', { type: 'string' })
+    .array('doi')
+    .default('doi', undefined) // removes "[default: []]" from description
+    .demandOption('doi')
     .describe('doi', 'The DOI(s) of the paper(s) to retrieve.')
     .boolean('target')
     .describe('target', 'Get papers citing a given DOI.');
