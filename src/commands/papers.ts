@@ -1,8 +1,8 @@
 import chalk from 'chalk';
 import { Argv } from 'yargs';
 import * as scite from '../client';
-import { fromResponseError, isResponseError, readConfig } from '../utils';
 import { InferArguments } from '../types';
+import { readConfig } from '../utils';
 
 export const command = 'papers <doi...>';
 
@@ -49,8 +49,7 @@ export async function handler(argv: InferArguments<typeof builder>) {
   try {
     await main(argv);
   } catch (error) {
-    console.error(`${chalk.stderr.red('error')}\n`);
-    if (!isResponseError(error)) throw error;
-    throw await fromResponseError(error);
+    console.error(`${chalk.stderr.red('error')}`);
+    throw error;
   }
 }

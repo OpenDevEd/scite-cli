@@ -4,7 +4,6 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import { z } from 'zod';
-import { fromZodError } from 'zod-validation-error';
 import { name } from '../package.json';
 import * as scite from './client';
 
@@ -47,48 +46,22 @@ export async function fromResponseError(err: scite.ResponseError) {
   const status = response.status;
   const message = `${err.message}
 Status: ${status}
-Body: ${JSON.stringify(body, null, 2)}
-`;
+Body: ${JSON.stringify(body, null, 2)}`;
 
   return new Error(message);
 }
 
 /**
- * Creates a parser function for a given Zod schema.
- * @param schema The Zod schema to use for parsing.
- * @returns A parser function that validates and parses the input data.
+ * Validates a date string using the specified format(s).
+ * @param format The format(s) to validate the date against.
+ * @returns A Zod string schema with a refinement to validate the date.
  */
-export function createParser<T>(schema: z.ZodType<T>) {
-  return function parse(data: unknown) {
-    try {
-      return schema.parse(data);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        throw fromZodError(error);
-      }
-
-      throw error;
-    }
-  };
-}
-
-/**
- * Validates a date string against a given format.
- * @param date The date string to validate.
- * @param format The format or an array of formats to validate against.
- * @throws An error if the date is not in the specified format or is not a valid date.
- * @returns The validated date string.
- */
-export function validateDateString(date: string, format: string | string[]) {
+export function ZodDateString(format: string | string[]) {
   format = Array.isArray(format) ? format : [format];
 
-  const isValid = dayjs(date, format, true).isValid();
-
-  if (isValid) return date;
-
+  const isValid = (date: string) => dayjs(date, format, true).isValid();
   const stringified = format.map((f) => JSON.stringify(f));
+  const message = `Date must be in the format ${stringified.join(' or ')} and must be a valid date.`;
 
-  throw new Error(
-    `Validation error: Date must be in the format ${stringified.join(' or ')} and must be a valid date.`,
-  );
+  return z.string().refine(isValid, { message });
 }
