@@ -45,6 +45,22 @@ For example, to get help for the `papers` subcommand, you can run:
 scite-cli papers --help
 ```
 
+You can also enable terminal completion. This feature provides you with command and option suggestions as you type in your terminal.
+
+You can enable it by adding the following line to your `.bashrc` or `.bash_profile`:
+
+```bash
+eval "$(scite-cli completion)"
+```
+
+Or, for a one-time setup, you can directly use:
+
+```bash
+source <(scite-cli completion)
+```
+
+Now, when you type scite-cli followed by a space and press the Tab key, you will see a list of available commands. You can also get suggestions for options by typing a command followed by a space and --, then pressing Tab.
+
 # Getting Started
 
 ### Prerequisites
