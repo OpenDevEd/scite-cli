@@ -9,7 +9,7 @@ import {
   GetSearchSearchGetSortOrderEnum as SortOrderEnum,
 } from '../client';
 import { InferArguments } from '../types';
-import { ZodDateString, readConfig } from '../utils';
+import { ZodDateString, readConfig, serialize } from '../utils';
 
 export const command = 'search [term]';
 
@@ -212,7 +212,7 @@ async function main(argv: InferArguments<typeof builder>) {
   console.error(chalk.stderr.green('success'));
   console.error();
 
-  await console.log(JSON.stringify(data.hits, null, 2));
+  await console.log(serialize(data.hits));
 }
 
 export async function handler(argv: InferArguments<typeof builder>) {

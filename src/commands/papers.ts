@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import { Argv } from 'yargs';
 import * as scite from '../client';
 import { InferArguments } from '../types';
-import { readConfig } from '../utils';
+import { readConfig, serialize } from '../utils';
 
 export const command = 'papers <doi...>';
 
@@ -45,7 +45,7 @@ async function main(argv: InferArguments<typeof builder>) {
 
   const papers = Object.values(data.papers);
 
-  await console.log(JSON.stringify(papers, null, 2));
+  await console.log(serialize(papers));
 }
 
 export async function handler(argv: InferArguments<typeof builder>) {

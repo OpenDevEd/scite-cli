@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { Argv } from 'yargs';
 import { InferArguments } from '../types';
-import { configPath } from '../utils';
+import { configPath, serialize } from '../utils';
 
 export const command = 'config <command> <key> [value]';
 
@@ -73,7 +73,7 @@ export async function main(argv: InferArguments<typeof builder>) {
   process.stderr.write('writing config ... ');
 
   await fs.mkdir(path.dirname(configPath), { recursive: true });
-  await fs.writeFile(configPath, JSON.stringify(json, null, 2));
+  await fs.writeFile(configPath, serialize(json));
 
   console.error(chalk.stderr.green('success'));
 }

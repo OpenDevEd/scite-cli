@@ -52,7 +52,7 @@ export async function fromResponseError(err: scite.ResponseError) {
   const status = response.status;
   const message = `${err.message}
 Status: ${status}
-Body: ${JSON.stringify(body, null, 2)}`;
+Body: ${serialize(body)}`;
 
   return new Error(message);
 }
@@ -70,4 +70,8 @@ export function ZodDateString(format: string | string[]) {
   const message = `Date must be in the format ${stringified.join(' or ')} and must be a valid date.`;
 
   return z.string().refine(isValid, { message });
+}
+
+export function serialize(obj: unknown) {
+  return JSON.stringify(obj, null, 2);
 }
