@@ -212,7 +212,12 @@ async function main(argv: InferArguments<typeof builder>) {
   console.error(chalk.stderr.green('success'));
   console.error();
 
-  console.log(serialize(data.hits));
+  const papers = data.hits.map((paper) => {
+    const { _abstract, ...rest } = paper;
+    return { abstract: _abstract, ...rest };
+  });
+
+  console.log(serialize(papers));
 }
 
 export async function handler(argv: InferArguments<typeof builder>) {

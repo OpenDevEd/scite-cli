@@ -43,7 +43,10 @@ async function main(argv: InferArguments<typeof builder>) {
   console.error(chalk.stderr.green('success'));
   console.error();
 
-  const papers = Object.values(data.papers);
+  const papers = Object.values(data.papers).map(paper => {
+    const { _abstract, ...rest } = paper;
+    return { abstract: _abstract, ...rest };
+  });
 
   console.log(serialize(papers));
 }
