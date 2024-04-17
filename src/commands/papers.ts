@@ -45,7 +45,7 @@ async function main(argv: InferArguments<typeof builder>) {
 
   const papers = Object.values(data.papers);
 
-  await console.log(serialize(papers));
+  console.log(serialize(papers));
 }
 
 export async function handler(argv: InferArguments<typeof builder>) {

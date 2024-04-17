@@ -212,7 +212,7 @@ async function main(argv: InferArguments<typeof builder>) {
   console.error(chalk.stderr.green('success'));
   console.error();
 
-  await console.log(serialize(data.hits));
+  console.log(serialize(data.hits));
 }
 
 export async function handler(argv: InferArguments<typeof builder>) {
