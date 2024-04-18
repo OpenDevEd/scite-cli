@@ -4,7 +4,7 @@
 
 # scite-cli
 
-A CLI tool that gives access to citation data, scite tallies, related paper metadata and scite reference check.
+An unofficial CLI tool that gives access to citation data, scite tallies, related paper metadata and scite reference check.
 
 Please refer to the subsequent sections for details on how to install and use `scite-cli`.
 
