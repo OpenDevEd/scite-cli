@@ -8,7 +8,7 @@
   },
   "scripts": {
     "setup": "npm install && npm run build && npm link",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "build": "tsc",
     "watch": "tsc -w",
     "start": "node ./dist/src/index.js",
@@ -16,21 +16,31 @@
     "lint": "eslint . --ext .ts",
     "format": "prettier --write ."
   },
-  "keywords": ["cli", "citation", "scite", "metadata", "reference check"],
+  "keywords": [
+    "cli",
+    "citation",
+    "scite",
+    "metadata",
+    "reference check"
+  ],
   "author": "Soufiane Yakoubi <soufiane.yakoubi@outlook.com>",
   "license": "ISC",
   "devDependencies": {
+    "@types/jest": "^29.5.12",
     "@types/yargs": "^17.0.32",
     "@typescript-eslint/eslint-plugin": "^7.5.0",
     "@typescript-eslint/parser": "^7.5.0",
+    "axios": "^1.6.8",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
+    "jest": "^29.7.0",
     "prettier": "^3.2.5",
+    "snakecase-keys": "^8.0.0",
+    "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.3"
   },
   "dependencies": {
-    "chalk": "^4.1.2",
     "dayjs": "^1.11.10",
     "yargs": "^17.7.2",
     "zod": "^3.22.4",
