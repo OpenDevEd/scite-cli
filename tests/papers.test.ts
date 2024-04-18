@@ -34,6 +34,29 @@ it('should retrieve papers by DOIs', async () => {
   expect(actual).toStrictEqual(expected);
 });
 
+it('should filter out papers not found by DOI', async () => {
+  const doi = ['Tk7jQTRHFU3z3mvES2X9VDjiaqAF6t', '10.1007/s10616-007-9104-1'];
+  const res = await axios.post('https://api.scite.ai/papers', doi);
+
+  await handler({ doi, target: false, $0: 'scite-cli', _: ['papers'] });
+
+  const calls = spy.mock.calls;
+
+  expect(spy).toHaveBeenCalledTimes(1);
+  expect(calls[0]).toHaveLength(1);
+
+  const arg = calls[0][0];
+
+  expect(typeof arg).toBe('string');
+
+  const data: PapersResponse = res.data;
+
+  const expected = extractIds(Object.values(data.papers));
+  const actual = extractIds(JSON.parse(arg));
+
+  expect(actual).toStrictEqual(expected);
+});
+
 it('should retrieve papers citing a given DOI', async () => {
   const doi = '10.1007/s10616-007-9104-1';
   const res = await axios.get(`https://api.scite.ai/papers/sources/${doi}`);
