@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 import { Argv } from 'yargs';
 import * as scite from '../client';
 import { InferArguments } from '../types';
@@ -19,17 +18,9 @@ export function builder(yargs: Argv) {
     .describe('target', 'Get papers citing a given DOI.');
 }
 
-async function main(argv: InferArguments<typeof builder>) {
-  process.stderr.write('reading config file ... ');
-
+export async function handler(argv: InferArguments<typeof builder>) {
   const config = await readConfig();
-
-  console.error(chalk.stderr.green('success'));
-
   const api = new scite.PapersApi(config);
-
-  process.stderr.write('sending api query ... ');
-
   let data: scite.PapersResponse;
 
   if (argv.target) {
@@ -40,22 +31,10 @@ async function main(argv: InferArguments<typeof builder>) {
     data = await api.getPapersPapersPost({ requestBody: argv.doi });
   }
 
-  console.error(chalk.stderr.green('success'));
-  console.error();
-
   const papers = Object.values(data.papers).map(paper => {
     const { _abstract, ...rest } = paper;
     return { abstract: _abstract, ...rest };
   });
 
   console.log(serialize(papers));
-}
-
-export async function handler(argv: InferArguments<typeof builder>) {
-  try {
-    await main(argv);
-  } catch (error) {
-    console.error(`${chalk.stderr.red('error')}`);
-    throw error;
-  }
 }

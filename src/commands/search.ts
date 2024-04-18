@@ -1,4 +1,3 @@
-import chalk from 'chalk';
 import { Argv } from 'yargs';
 import { z } from 'zod';
 import * as scite from '../client';
@@ -161,16 +160,9 @@ export function builder(yargs: Argv) {
     .check((argv) => schema.parse(argv));
 }
 
-async function main(argv: InferArguments<typeof builder>) {
-  process.stderr.write('reading config file ... ');
-
+export async function handler(argv: InferArguments<typeof builder>) {
   const config = await readConfig();
-
-  console.error(chalk.stderr.green('success'));
-
   const api = new scite.SearchApi(config);
-
-  process.stderr.write('sending api query ... ');
 
   const data = await api.getSearchSearchGet({
     term: argv.term,
@@ -209,22 +201,10 @@ async function main(argv: InferArguments<typeof builder>) {
     aggregationsOptions: argv.aggregationsOptions,
   });
 
-  console.error(chalk.stderr.green('success'));
-  console.error();
-
   const papers = data.hits.map((paper) => {
     const { _abstract, ...rest } = paper;
     return { abstract: _abstract, ...rest };
   });
 
   console.log(serialize(papers));
-}
-
-export async function handler(argv: InferArguments<typeof builder>) {
-  try {
-    await main(argv);
-  } catch (error) {
-    console.error(`${chalk.stderr.red('error')}`);
-    throw error;
-  }
 }
