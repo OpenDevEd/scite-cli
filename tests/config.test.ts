@@ -14,9 +14,11 @@ beforeEach(() => {
 });
 
 describe('when file does not exist', () => {
-  it('should set a key-value pair', async () => {
+  beforeEach(() => {
     readFileMock.mockRejectedValueOnce(new Error('File not found'));
+  });
 
+  it('should set a key-value pair', async () => {
     await handler({
       command: 'set',
       key: 'key',
@@ -32,8 +34,6 @@ describe('when file does not exist', () => {
   });
 
   it('should not write a config file', async () => {
-    readFileMock.mockRejectedValueOnce(new Error('File not found'));
-
     const promise = handler({
       command: 'get',
       key: 'key',
@@ -46,8 +46,6 @@ describe('when file does not exist', () => {
   });
 
   it('should unset a key', async () => {
-    readFileMock.mockRejectedValueOnce(new Error('File not found'));
-
     await handler({
       command: 'unset',
       key: 'key',
