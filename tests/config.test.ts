@@ -21,8 +21,8 @@ describe('when file does not exist', () => {
       command: 'set',
       key: 'key',
       value: 'value',
-      $0: 'config',
-      _: ['set', 'key', 'value'],
+      $0: 'scite-cli',
+      _: ['config'],
     });
 
     expect(fs.writeFile).toHaveBeenCalledWith(
@@ -37,9 +37,8 @@ describe('when file does not exist', () => {
     const promise = handler({
       command: 'get',
       key: 'key',
-      value: undefined,
-      $0: 'config',
-      _: ['get', 'key'],
+      $0: 'scite-cli',
+      _: ['config'],
     });
 
     await expect(promise).rejects.toThrow();
@@ -52,9 +51,8 @@ describe('when file does not exist', () => {
     await handler({
       command: 'unset',
       key: 'key',
-      value: undefined,
-      $0: 'config',
-      _: ['unset', 'key'],
+      $0: 'scite-cli',
+      _: ['config'],
     });
 
     expect(fs.writeFile).toHaveBeenCalledWith(configPath, serialize({}));
@@ -69,8 +67,8 @@ describe('when file exists', () => {
       command: 'set',
       key: 'key',
       value: 'value',
-      $0: 'config',
-      _: ['set', 'key', 'value'],
+      $0: 'scite-cli',
+      _: ['config'],
     });
 
     expect(fs.writeFile).toHaveBeenCalledWith(
@@ -85,9 +83,8 @@ describe('when file exists', () => {
     await handler({
       command: 'get',
       key: 'key',
-      value: undefined,
-      $0: 'config',
-      _: ['get', 'key'],
+      $0: 'scite-cli',
+      _: ['config'],
     });
 
     expect(spy).toHaveBeenCalledWith('value');
@@ -100,9 +97,8 @@ describe('when file exists', () => {
     await handler({
       command: 'unset',
       key: 'key',
-      value: undefined,
-      $0: 'config',
-      _: ['unset', 'key'],
+      $0: 'scite-cli',
+      _: ['config'],
     });
 
     expect(fs.writeFile).toHaveBeenCalledWith(configPath, serialize({}));
