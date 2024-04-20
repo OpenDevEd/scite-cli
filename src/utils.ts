@@ -13,22 +13,33 @@ const home = os.homedir();
 export const configPath = path.join(home, '.config', name, 'config.json');
 
 /**
+ * Reads the configuration file.
+ * @returns The parsed JSON object from the config file.
+ */
+export async function readConfigFile() {
+  try {
+    const content = await fs.readFile(configPath, 'utf8');
+    const json = JSON.parse(content);
+
+    // json is an object literal
+    if (typeof json === 'object' && !Array.isArray(json)) return json;
+
+    return {};
+  } catch (error) {
+    return {};
+  }
+}
+
+/**
  * Reads the configuration from the config file.
  * @returns A Promise that resolves to a `scite.Configuration` instance.
  */
 export async function readConfig() {
-  let json;
-
-  try {
-    const content = await fs.readFile(configPath, 'utf8');
-    json = JSON.parse(content);
-  } catch (error) {
-    json = {};
-  }
+  const config = await readConfigFile();
 
   return new scite.Configuration({
-    basePath: json['base-path'] || 'https://api.scite.ai',
-    accessToken: json['access-token'],
+    basePath: config['base-path'] || 'https://api.scite.ai',
+    accessToken: config['access-token'],
   });
 }
 

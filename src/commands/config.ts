@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { Argv } from 'yargs';
 import { InferArguments } from '../types';
-import { configPath, serialize } from '../utils';
+import { configPath, readConfigFile, serialize } from '../utils';
 
 export const command = 'config <command> <key> [value]';
 
@@ -23,35 +23,28 @@ export function builder(yargs: Argv) {
 
 export async function handler(argv: InferArguments<typeof builder>) {
   const { command, key, value } = argv;
-  let json;
-
-  try {
-    const content = await fs.readFile(configPath, 'utf8');
-    json = JSON.parse(content);
-  } catch (error) {
-    json = {};
-  }
+  const config = await readConfigFile();
 
   switch (command) {
     case 'set':
       if (value === undefined)
         throw new Error('Please provide a value for the key');
 
-      json[key] = value;
+      config[key] = value;
       break;
 
     case 'get':
-      if (!(key in json))
+      if (!(key in config))
         throw new Error(`The value of ${JSON.stringify(key)} does not exist`);
 
-      console.log(json[key]);
+      console.log(config[key]);
       return;
 
     case 'unset':
-      delete json[key];
+      delete config[key];
       break;
   }
 
   await fs.mkdir(path.dirname(configPath), { recursive: true });
-  await fs.writeFile(configPath, serialize(json));
+  await fs.writeFile(configPath, serialize(config));
 }
