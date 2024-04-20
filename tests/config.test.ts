@@ -102,3 +102,47 @@ describe('when file exists', () => {
     expect(fs.writeFile).toHaveBeenCalledWith(configPath, serialize({}));
   });
 });
+
+describe('when file exists and contains invalid data', () => {
+  beforeEach(() => {
+    readFileMock.mockResolvedValue('not an object literal');
+  });
+
+  it('should set a key-value pair', async () => {
+    await handler({
+      command: 'set',
+      key: 'key',
+      value: 'value',
+      $0: 'scite-cli',
+      _: ['config'],
+    });
+
+    expect(fs.writeFile).toHaveBeenCalledWith(
+      configPath,
+      serialize({ key: 'value' }),
+    );
+  });
+
+  it('should throw when trying to get a value for a key', async () => {
+    const promise = handler({
+      command: 'get',
+      key: 'key',
+      $0: 'scite-cli',
+      _: ['config'],
+    });
+
+    await expect(promise).rejects.toThrow();
+    expect(fs.writeFile).not.toHaveBeenCalled();
+  });
+
+  it('should unset a key', async () => {
+    await handler({
+      command: 'unset',
+      key: 'key',
+      $0: 'scite-cli',
+      _: ['config'],
+    });
+
+    expect(fs.writeFile).toHaveBeenCalledWith(configPath, serialize({}));
+  });
+});
