@@ -1,7 +1,6 @@
-import axios from 'axios';
 import { PapersResponse } from '../src/client';
 import { handler } from '../src/commands/papers';
-import { extractIds } from './utils';
+import { extractIds, get, post } from './utils';
 
 const spy = jest.fn();
 
@@ -18,7 +17,8 @@ const cases = [
       doi: ['10.1007/s10616-007-9104-1', '10.1002/bio.4224'],
       target: false,
     },
-    fetcher: (doi: string[]) => axios.post('https://api.scite.ai/papers', doi),
+    fetcher: (doi: string[]) =>
+      post<PapersResponse>('https://api.scite.ai/papers', doi),
   },
   {
     name: 'should filter out papers not found by DOI',
@@ -26,7 +26,8 @@ const cases = [
       doi: ['Tk7jQTRHFU3z3mvES2X9VDjiaqAF6t', '10.1007/s10616-007-9104-1'],
       target: false,
     },
-    fetcher: (doi: string[]) => axios.post('https://api.scite.ai/papers', doi),
+    fetcher: (doi: string[]) =>
+      post<PapersResponse>('https://api.scite.ai/papers', doi),
   },
   {
     name: 'should retrieve papers citing a given DOI',
@@ -35,12 +36,12 @@ const cases = [
       target: true,
     },
     fetcher: (doi: string[]) =>
-      axios.get(`https://api.scite.ai/papers/sources/${doi[0]}`),
+      get<PapersResponse>(`https://api.scite.ai/papers/sources/${doi[0]}`),
   },
 ];
 
 it.each(cases)('$name', async ({ args, fetcher }) => {
-  const res = await fetcher(args.doi);
+  const data = await fetcher(args.doi);
 
   await handler({ ...args, $0: 'scite-cli', _: ['papers'] });
 
@@ -52,8 +53,6 @@ it.each(cases)('$name', async ({ args, fetcher }) => {
   const arg = calls[0][0];
 
   expect(typeof arg).toBe('string');
-
-  const data: PapersResponse = res.data;
 
   const expected = extractIds(Object.values(data.papers));
   const actual = extractIds(JSON.parse(arg));

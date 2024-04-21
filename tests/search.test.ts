@@ -1,11 +1,10 @@
-import axios from 'axios';
+import camelCaseKeys from 'camelcase-keys';
 import fs from 'fs/promises';
-import snakeCaseKeys from 'snakecase-keys';
 import { SearchResultsResponse } from '../src/client';
 import { builder, handler } from '../src/commands/search';
 import { InferArguments } from '../src/types';
 import { serialize } from '../src/utils';
-import { extractIds } from './utils';
+import { extractIds, get } from './utils';
 
 type Arguments = InferArguments<typeof builder>;
 
@@ -187,9 +186,10 @@ beforeEach(() => {
 });
 
 it.each(cases)('$name', async ({ args }) => {
-  const res = await axios.get('https://api.scite.ai/search', {
-    params: snakeCaseKeys(args),
-  });
+  const data = await get<SearchResultsResponse>(
+    'https://api.scite.ai/search',
+    args,
+  );
 
   await handler({
     $0: 'scite-cli',
@@ -197,6 +197,7 @@ it.each(cases)('$name', async ({ args }) => {
     offset: 0,
     limit: 10,
     ...args,
+    ...camelCaseKeys(args), // simulate yargs parsing
   });
 
   const calls = spy.mock.calls;
@@ -207,8 +208,6 @@ it.each(cases)('$name', async ({ args }) => {
   const arg = calls[0][0];
 
   expect(typeof arg).toBe('string');
-
-  const data: SearchResultsResponse = res.data;
 
   const expected = extractIds(data.hits);
   const actual = extractIds(JSON.parse(arg));
