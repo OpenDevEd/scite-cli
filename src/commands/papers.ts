@@ -1,3 +1,4 @@
+import fs from 'fs/promises';
 import { Argv } from 'yargs';
 import * as scite from '../client';
 import { InferArguments } from '../types';
@@ -9,6 +10,9 @@ export const description = `Retrieve paper metadata by DOI(s).`;
 
 export function builder(yargs: Argv) {
   return yargs
+    .string('output')
+    .alias('output', 'o')
+    .describe('output', 'File path to save output to')
     .default('doi', undefined) // removes "[default: []]" from description
     .positional('doi', { type: 'string' })
     .array('doi')
@@ -31,10 +35,14 @@ export async function handler(argv: InferArguments<typeof builder>) {
     data = await api.getPapersPapersPost({ requestBody: argv.doi });
   }
 
-  const papers = Object.values(data.papers).map(paper => {
+  const papers = Object.values(data.papers).map((paper) => {
     const { _abstract, ...rest } = paper;
     return { abstract: _abstract, ...rest };
   });
 
-  console.log(serialize(papers));
+  if (argv.output) {
+    fs.writeFile(argv.output, serialize(papers));
+  } else {
+    console.log(serialize(papers));
+  }
 }

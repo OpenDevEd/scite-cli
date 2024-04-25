@@ -1,7 +1,11 @@
+import fs from 'fs/promises';
 import { PapersResponse } from '../src/client';
 import { handler } from '../src/commands/papers';
 import { extractIds, get, post } from './utils';
 
+jest.mock('fs/promises');
+
+const writeFileMock = fs.writeFile as jest.Mock;
 const spy = jest.fn();
 
 console.log = spy;
@@ -82,4 +86,32 @@ it.each([
   });
 
   await expect(promise).rejects.toThrow();
+});
+
+it('should write output to file if --output is specified', async () => {
+  const output = 'output.json';
+  const doi = ['10.1007/s10616-007-9104-1'];
+  const data = await post<PapersResponse>('https://api.scite.ai/papers', doi);
+
+  await handler({
+    doi,
+    output,
+    $0: 'scite-cli',
+    _: ['papers'],
+  });
+
+  const calls = writeFileMock.mock.calls;
+
+  expect(spy).not.toHaveBeenCalled();
+  expect(writeFileMock).toHaveBeenCalledTimes(1);
+
+  const [filepath, content] = calls[0];
+
+  expect(filepath).toBe(output);
+  expect(typeof content).toBe('string');
+
+  const expected = extractIds(Object.values(data.papers));
+  const actual = extractIds(JSON.parse(content));
+
+  expect(actual).toStrictEqual(expected);
 });

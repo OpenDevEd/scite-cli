@@ -1,3 +1,4 @@
+import fs from 'fs/promises';
 import { Argv } from 'yargs';
 import { z } from 'zod';
 import * as scite from '../client';
@@ -33,6 +34,9 @@ const schema = z
 
 export function builder(yargs: Argv) {
   return yargs
+    .string('output')
+    .alias('output', 'o')
+    .describe('output', 'File path to save output to')
     .positional('term', { type: 'string' })
     .describe('term', 'Cross-field search term. Can be left blank.')
     .choices('mode', Object.values(ModeEnum))
@@ -206,5 +210,9 @@ export async function handler(argv: InferArguments<typeof builder>) {
     return { abstract: _abstract, ...rest };
   });
 
-  console.log(serialize(papers));
+  if (argv.output) {
+    fs.writeFile(argv.output, serialize(papers));
+  } else {
+    console.log(serialize(papers));
+  }
 }

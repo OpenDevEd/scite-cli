@@ -174,10 +174,12 @@ const cases = [
 
 jest.mock('fs/promises');
 
-// empty config file
-(fs.readFile as jest.Mock).mockResolvedValue(serialize({}));
-
+const readFileMock = fs.readFile as jest.Mock;
+const writeFileMock = fs.writeFile as jest.Mock;
 const spy = jest.fn();
+
+// empty config file
+readFileMock.mockResolvedValue(serialize({}));
 
 console.log = spy;
 
@@ -211,6 +213,34 @@ it.each(cases)('$name', async ({ args }) => {
 
   const expected = extractIds(data.hits);
   const actual = extractIds(JSON.parse(arg));
+
+  expect(actual).toStrictEqual(expected);
+});
+
+it('should write output to file if --output is specified', async () => {
+  const output = 'output.json';
+  const data = await get<SearchResultsResponse>('https://api.scite.ai/search');
+
+  await handler({
+    $0: 'scite-cli',
+    _: ['search'],
+    offset: 0,
+    limit: 10,
+    output,
+  });
+
+  const calls = writeFileMock.mock.calls;
+
+  expect(spy).not.toHaveBeenCalled();
+  expect(writeFileMock).toHaveBeenCalledTimes(1);
+
+  const [filepath, content] = calls[0];
+
+  expect(filepath).toBe(output);
+  expect(typeof content).toBe('string');
+
+  const expected = extractIds(data.hits);
+  const actual = extractIds(JSON.parse(content));
 
   expect(actual).toStrictEqual(expected);
 });
