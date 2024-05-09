@@ -3,6 +3,7 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
+import readline from 'readline';
 import { z } from 'zod';
 import { name } from '../package.json';
 import * as scite from './client';
@@ -85,4 +86,18 @@ export function ZodDateString(format: string | string[]) {
 
 export function serialize(obj: unknown) {
   return JSON.stringify(obj, null, 2);
+}
+
+export function ask(prompt: string) {
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  return new Promise<string>((resolve) => {
+    rl.question(prompt, (answer) => {
+      rl.close();
+      resolve(answer);
+    });
+  });
 }

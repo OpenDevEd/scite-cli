@@ -2,9 +2,9 @@ import fs from 'fs/promises';
 import path from 'path';
 import { Argv } from 'yargs';
 import { InferArguments } from '../types';
-import { configPath, readConfigFile, serialize } from '../utils';
+import { ask, configPath, readConfigFile, serialize } from '../utils';
 
-export const command = 'config <command> <key> [value]';
+export const command = 'config <command> <key>';
 
 export const description = 'Get, set, and unset configuration options';
 
@@ -16,21 +16,17 @@ export function builder(yargs: Argv) {
     .describe('command', 'The command to execute')
     .positional('key', { type: 'string' })
     .demandOption('key')
-    .describe('key', 'The configuration key')
-    .positional('value', { type: 'string' })
-    .describe('value', 'The value to set for the key');
+    .describe('key', 'The configuration key');
 }
 
 export async function handler(argv: InferArguments<typeof builder>) {
-  const { command, key, value } = argv;
+  const { command, key } = argv;
   const config = await readConfigFile();
 
   switch (command) {
     case 'set':
-      if (value === undefined)
-        throw new Error('Please provide a value for the key');
-
-      config[key] = value;
+      config[key] = await ask(`Enter the value for ${JSON.stringify(key)}: `);
+      config[key] = config[key].trim();
       break;
 
     case 'get':

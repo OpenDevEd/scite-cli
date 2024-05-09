@@ -1,10 +1,15 @@
 import fs from 'fs/promises';
 import { handler } from '../src/commands/config';
-import { configPath, serialize } from '../src/utils';
+import { configPath, serialize, ask } from '../src/utils';
 
 jest.mock('fs/promises');
+jest.mock('../src/utils', () => ({
+  ...jest.requireActual('../src/utils'),
+  ask: jest.fn(),
+}));
 
 const spy = jest.fn();
+const askMock = ask as jest.Mock;
 const readFileMock = fs.readFile as jest.Mock;
 
 console.log = spy;
@@ -19,10 +24,11 @@ describe('when file does not exist', () => {
   });
 
   it('should set a key-value pair', async () => {
+    askMock.mockResolvedValue('value');
+
     await handler({
       command: 'set',
       key: 'key',
-      value: 'value',
       $0: 'scite-cli',
       _: ['config'],
     });
@@ -60,11 +66,11 @@ describe('when file does not exist', () => {
 describe('when file exists', () => {
   it('should set a key-value pair', async () => {
     readFileMock.mockResolvedValue(serialize({}));
+    askMock.mockResolvedValue('value');
 
     await handler({
       command: 'set',
       key: 'key',
-      value: 'value',
       $0: 'scite-cli',
       _: ['config'],
     });
@@ -109,10 +115,11 @@ describe('when file exists and contains invalid data', () => {
   });
 
   it('should set a key-value pair', async () => {
+    askMock.mockResolvedValue('value');
+
     await handler({
       command: 'set',
       key: 'key',
-      value: 'value',
       $0: 'scite-cli',
       _: ['config'],
     });
