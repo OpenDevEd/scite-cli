@@ -94,7 +94,7 @@ scite-cli --help
 The CLI tool requires an API key to access the scite API. You can set this key using the `config` subcommand:
 
 ```bash
-scite-cli config set access-token <your-api-key>
+scite-cli config set access-token
 ```
 
 ### Development
