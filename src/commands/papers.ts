@@ -1,5 +1,6 @@
 import fs from 'fs/promises';
 import { Argv } from 'yargs';
+import { z } from 'zod';
 import * as scite from '../client';
 import { InferArguments } from '../types';
 import { readConfig, serialize } from '../utils';
@@ -7,6 +8,14 @@ import { readConfig, serialize } from '../utils';
 export const command = 'papers <doi...>';
 
 export const description = `Retrieve paper metadata by DOI(s).`;
+
+const schema = z
+  .object({
+    output: z.string().min(1),
+    doi: z.array(z.string().min(1)),
+    target: z.boolean(),
+  })
+  .partial();
 
 export function builder(yargs: Argv) {
   return yargs
@@ -19,7 +28,8 @@ export function builder(yargs: Argv) {
     .demandOption('doi')
     .describe('doi', 'The DOI(s) of the paper(s) to retrieve.')
     .boolean('target')
-    .describe('target', 'Get papers citing a given DOI.');
+    .describe('target', 'Get papers citing a given DOI.')
+    .check((argv) => schema.parse(argv));
 }
 
 export async function handler(argv: InferArguments<typeof builder>) {

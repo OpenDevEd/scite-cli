@@ -17,10 +17,24 @@ export const description = `Search the scite database for documents matching a t
 
 const schema = z
   .object({
+    term: z.string().min(1),
+    output: z.string().min(1),
+    mode: z.nativeEnum(ModeEnum),
     limit: z.number().int().positive().max(10000),
     offset: z.number().int().nonnegative(),
+    sort: z.nativeEnum(SortEnum),
+    'sort-order': z.nativeEnum(SortOrderEnum),
+    title: z.string().min(1),
+    abstract: z.string().min(1),
     'date-from': ZodDateString(['YYYY-MM-DD', 'YYYY']),
     'date-to': ZodDateString(['YYYY-MM-DD', 'YYYY']),
+    'citation-types': z.nativeEnum(CitationTypesEnum),
+    'has-retraction': z.boolean(),
+    'has-concern': z.boolean(),
+    'has-correction': z.boolean(),
+    'has-erratum': z.boolean(),
+    'has-withdrawn': z.boolean(),
+    'has-tally': z.boolean(),
     'supporting-from': z.number().int().nonnegative(),
     'supporting-to': z.number().int().nonnegative(),
     'mentioning-from': z.number().int().nonnegative(),
@@ -29,16 +43,25 @@ const schema = z
     'contrasting-to': z.number().int().nonnegative(),
     'citing-publications-from': z.number().int().nonnegative(),
     'citing-publications-to': z.number().int().nonnegative(),
+    author: z.string().min(1),
+    journal: z.string().min(1),
+    section: z.string().min(1),
+    'paper-type': z.string().min(1),
+    affiliation: z.string().min(1),
+    topic: z.string().min(1),
+    substances: z.array(z.string().min(1)),
+    'mesh-type': z.string().min(1),
+    'aggregations-options': z.string().min(1),
   })
   .partial();
 
 export function builder(yargs: Argv) {
   return yargs
+    .positional('term', { type: 'string' })
+    .describe('term', 'Cross-field search term. Can be left blank.')
     .string('output')
     .alias('output', 'o')
     .describe('output', 'File path to save output to')
-    .positional('term', { type: 'string' })
-    .describe('term', 'Cross-field search term. Can be left blank.')
     .choices('mode', Object.values(ModeEnum))
     .describe(
       'mode',
