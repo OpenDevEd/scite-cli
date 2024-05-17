@@ -14,7 +14,7 @@ export const command = 'search [term]';
 
 export const description = `Search the scite database for documents matching a term.`;
 
-const schema = z
+export const schema = z
   .object({
     term: z.string().min(1),
     output: z.string().min(1),

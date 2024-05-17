@@ -9,13 +9,13 @@ export const command = 'config <command> <key>';
 
 export const description = 'Get, set, and unset configuration options';
 
-enum CommandEnum {
+export enum CommandEnum {
   Get = 'get',
   Set = 'set',
   Unset = 'unset',
 }
 
-const schema = z
+export const schema = z
   .object({
     command: z.nativeEnum(CommandEnum),
     key: z.string().min(1),

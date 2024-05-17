@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
-import { handler } from '../src/commands/config';
-import { configPath, serialize, ask } from '../src/utils';
+import { CommandEnum, handler } from '../src/commands/config';
+import { ask, configPath, serialize } from '../src/utils';
 
 jest.mock('fs/promises');
 jest.mock('../src/utils', () => ({
@@ -27,7 +27,7 @@ describe('when file does not exist', () => {
     askMock.mockResolvedValue('value');
 
     await handler({
-      command: 'set',
+      command: CommandEnum.Set,
       key: 'key',
       $0: 'scite-cli',
       _: ['config'],
@@ -41,7 +41,7 @@ describe('when file does not exist', () => {
 
   it('should not write a config file', async () => {
     const promise = handler({
-      command: 'get',
+      command: CommandEnum.Get,
       key: 'key',
       $0: 'scite-cli',
       _: ['config'],
@@ -53,7 +53,7 @@ describe('when file does not exist', () => {
 
   it('should unset a key', async () => {
     await handler({
-      command: 'unset',
+      command: CommandEnum.Unset,
       key: 'key',
       $0: 'scite-cli',
       _: ['config'],
@@ -69,7 +69,7 @@ describe('when file exists', () => {
     askMock.mockResolvedValue('value');
 
     await handler({
-      command: 'set',
+      command: CommandEnum.Set,
       key: 'key',
       $0: 'scite-cli',
       _: ['config'],
@@ -85,7 +85,7 @@ describe('when file exists', () => {
     readFileMock.mockResolvedValue(serialize({ key: 'value' }));
 
     await handler({
-      command: 'get',
+      command: CommandEnum.Get,
       key: 'key',
       $0: 'scite-cli',
       _: ['config'],
@@ -99,7 +99,7 @@ describe('when file exists', () => {
     readFileMock.mockResolvedValue(serialize({ key: 'value' }));
 
     await handler({
-      command: 'unset',
+      command: CommandEnum.Unset,
       key: 'key',
       $0: 'scite-cli',
       _: ['config'],
@@ -118,7 +118,7 @@ describe('when file exists and contains invalid data', () => {
     askMock.mockResolvedValue('value');
 
     await handler({
-      command: 'set',
+      command: CommandEnum.Set,
       key: 'key',
       $0: 'scite-cli',
       _: ['config'],
@@ -132,7 +132,7 @@ describe('when file exists and contains invalid data', () => {
 
   it('should throw when trying to get a value for a key', async () => {
     const promise = handler({
-      command: 'get',
+      command: CommandEnum.Get,
       key: 'key',
       $0: 'scite-cli',
       _: ['config'],
@@ -144,7 +144,7 @@ describe('when file exists and contains invalid data', () => {
 
   it('should unset a key', async () => {
     await handler({
-      command: 'unset',
+      command: CommandEnum.Unset,
       key: 'key',
       $0: 'scite-cli',
       _: ['config'],

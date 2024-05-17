@@ -8,7 +8,7 @@ export const command = 'papers <doi...>';
 
 export const description = `Retrieve paper metadata by DOI(s).`;
 
-const schema = z
+export const schema = z
   .object({
     output: z.string().min(1),
     doi: z.array(z.string().min(1)),
