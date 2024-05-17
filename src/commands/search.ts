@@ -19,6 +19,7 @@ const schema = z
   .object({
     term: z.string().min(1),
     output: z.string().min(1),
+    count: z.boolean(),
     mode: z.nativeEnum(ModeEnum),
     limit: z.number().int().positive().max(10000),
     offset: z.number().int().nonnegative(),
@@ -62,6 +63,9 @@ export function builder(yargs: Argv) {
     .string('output')
     .alias('output', 'o')
     .describe('output', 'File path to save output to')
+    .boolean('count')
+    .alias('count', 'c')
+    .describe('count', 'Return the number of results that match the query.')
     .choices('mode', Object.values(ModeEnum))
     .describe(
       'mode',
@@ -227,6 +231,14 @@ export async function handler(argv: InferArguments<typeof builder>) {
     meshType: argv.meshType,
     aggregationsOptions: argv.aggregationsOptions,
   });
+
+  if (argv.count) {
+    if (argv.output) {
+      return fs.writeFile(argv.output, data.count.toString());
+    }
+
+    return console.log(data.count.toString());
+  }
 
   const papers = data.hits.map((paper) => {
     const { _abstract, ...rest } = paper;
