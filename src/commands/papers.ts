@@ -51,7 +51,7 @@ export async function handler(argv: InferArguments<typeof builder>) {
   });
 
   if (argv.output) {
-    fs.writeFile(argv.output, serialize(papers));
+    await fs.writeFile(argv.output, serialize(papers));
   } else {
     console.log(serialize(papers));
   }
