@@ -3,7 +3,7 @@ import { Argv } from 'yargs';
 import { z } from 'zod';
 import * as scite from '../client';
 import { InferArguments } from '../types';
-import { readConfig, serialize } from '../utils';
+import { output, readConfig, serialize } from '../utils';
 
 export const command = 'papers <doi...>';
 
@@ -50,9 +50,5 @@ export async function handler(argv: InferArguments<typeof builder>) {
     return { abstract: _abstract, ...rest };
   });
 
-  if (argv.output) {
-    await fs.writeFile(argv.output, serialize(papers));
-  } else {
-    console.log(serialize(papers));
-  }
+  return output(papers, argv.output);
 }

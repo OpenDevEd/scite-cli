@@ -9,7 +9,7 @@ import {
   GetSearchSearchGetSortOrderEnum as SortOrderEnum,
 } from '../client';
 import { InferArguments } from '../types';
-import { ZodDateString, readConfig, serialize } from '../utils';
+import { ZodDateString, output, readConfig, serialize } from '../utils';
 
 export const command = 'search [term]';
 
@@ -232,22 +232,12 @@ export async function handler(argv: InferArguments<typeof builder>) {
     aggregationsOptions: argv.aggregationsOptions,
   });
 
-  if (argv.count) {
-    if (argv.output) {
-      return fs.writeFile(argv.output, data.count.toString());
-    }
-
-    return console.log(data.count.toString());
-  }
+  if (argv.count) return output(data.count, argv.output);
 
   const papers = data.hits.map((paper) => {
     const { _abstract, ...rest } = paper;
     return { abstract: _abstract, ...rest };
   });
 
-  if (argv.output) {
-    await fs.writeFile(argv.output, serialize(papers));
-  } else {
-    console.log(serialize(papers));
-  }
+  return output(papers, argv.output);
 }
