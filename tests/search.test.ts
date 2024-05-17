@@ -217,7 +217,7 @@ it.each(cases)('$name', async ({ args }) => {
   expect(actual).toStrictEqual(expected);
 });
 
-it('should write output to file if --output is specified', async () => {
+it('--output should write output to file', async () => {
   const output = 'output.json';
   const data = await get<SearchResultsResponse>('https://api.scite.ai/search');
 
@@ -243,4 +243,25 @@ it('should write output to file if --output is specified', async () => {
   const actual = extractIds(JSON.parse(content));
 
   expect(actual).toStrictEqual(expected);
+});
+
+it('--count should return the number of results that match the query', async () => {
+  const data = await get<SearchResultsResponse>('https://api.scite.ai/search');
+
+  await handler({
+    $0: 'scite-cli',
+    _: ['search'],
+    offset: 0,
+    limit: 10,
+    count: true,
+  });
+
+  const calls = spy.mock.calls;
+
+  expect(spy).toHaveBeenCalledTimes(1);
+  expect(calls[0]).toHaveLength(1);
+
+  const arg = calls[0][0];
+
+  expect(arg).toBe(data.count.toString());
 });

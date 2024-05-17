@@ -88,7 +88,7 @@ it.each([
   await expect(promise).rejects.toThrow();
 });
 
-it('should write output to file if --output is specified', async () => {
+it('--output should write output to file', async () => {
   const output = 'output.json';
   const doi = ['10.1007/s10616-007-9104-1'];
   const data = await post<PapersResponse>('https://api.scite.ai/papers', doi);
