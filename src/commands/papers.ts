@@ -1,9 +1,8 @@
-import fs from 'fs/promises';
 import { Argv } from 'yargs';
 import { z } from 'zod';
 import * as scite from '../client';
 import { InferArguments } from '../types';
-import { output, readConfig, serialize } from '../utils';
+import { output, readConfig } from '../utils';
 
 export const command = 'papers <doi...>';
 

@@ -1,4 +1,3 @@
-import fs from 'fs/promises';
 import { Argv } from 'yargs';
 import { z } from 'zod';
 import * as scite from '../client';
@@ -9,7 +8,7 @@ import {
   GetSearchSearchGetSortOrderEnum as SortOrderEnum,
 } from '../client';
 import { InferArguments } from '../types';
-import { ZodDateString, output, readConfig, serialize } from '../utils';
+import { ZodDateString, output, readConfig } from '../utils';
 
 export const command = 'search [term]';
 
