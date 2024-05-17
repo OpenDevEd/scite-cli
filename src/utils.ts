@@ -84,10 +84,20 @@ export function ZodDateString(format: string | string[]) {
   return z.string().refine(isValid, { message });
 }
 
+/**
+ * Serializes an object to a JSON string with indentation.
+ * @param obj The object to serialize.
+ * @returns A JSON string representation of the object.
+ */
 export function serialize(obj: unknown) {
   return JSON.stringify(obj, null, 2);
 }
 
+/**
+ * Prompts the user for input and returns the response.
+ * @param prompt The prompt to display to the user.
+ * @returns A Promise that resolves to the user's input.
+ */
 export function ask(prompt: string) {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -102,6 +112,11 @@ export function ask(prompt: string) {
   });
 }
 
+/**
+ * Outputs data to a file or the console.
+ * @param data The data to output.
+ * @param filepath The optional file path to write the data to. If not provided, the data will be logged to the console.
+ */
 export async function output(data: unknown, filepath?: string) {
   if (filepath) {
     await fs.writeFile(filepath, serialize(data));
