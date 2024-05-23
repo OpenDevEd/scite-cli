@@ -275,7 +275,7 @@ async function main(argv: InferArguments<typeof builder>, spinner: ora.Ora) {
       date: new Date().toISOString(),
       searchField: argv.title
         ? argv.abstract
-          ? 'title_abstract_keywords'
+          ? 'title_abstract'
           : 'title'
         : 'fulltext',
       page: Math.floor(params.offset / params.limit) + 1,
