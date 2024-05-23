@@ -124,3 +124,25 @@ export async function output(data: unknown, filepath?: string) {
     console.log(serialize(data));
   }
 }
+
+export async function expand(input: string) {
+  const regex = /([a-zA-Z0-9_-]+)\.\.\./;
+  let match = input.match(regex);
+
+  while (match) {
+    const [matched, basename] = match;
+    const filepath = path.join('searchterms', basename + '.txt');
+    let content: string;
+
+    try {
+      content = await fs.readFile(filepath, 'utf8');
+    } catch (error) {
+      content = '';
+    }
+
+    input = input.replace(matched, content.replace(/\s/g, ' '));
+    match = input.match(regex);
+  }
+
+  return input;
+}

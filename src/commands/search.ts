@@ -8,7 +8,7 @@ import {
   GetSearchSearchGetSortOrderEnum as SortOrderEnum,
 } from '../client';
 import { InferArguments } from '../types';
-import { ZodDateString, output, readConfig } from '../utils';
+import { ZodDateString, expand, output, readConfig } from '../utils';
 
 export const command = 'search [terms...]';
 
@@ -196,7 +196,7 @@ export async function handler(argv: InferArguments<typeof builder>) {
   const api = new scite.SearchApi(config);
 
   const data = await api.getSearchSearchGet({
-    term: argv.terms?.join(' '),
+    term: argv.terms && (await expand(argv.terms.join(' '))),
     mode: argv.mode,
     limit: argv.limit,
     offset: argv.offset,
