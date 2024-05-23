@@ -10,13 +10,13 @@ import {
 import { InferArguments } from '../types';
 import { ZodDateString, output, readConfig } from '../utils';
 
-export const command = 'search [term]';
+export const command = 'search [terms...]';
 
-export const description = `Search the scite database for documents matching a term.`;
+export const description = `Search the scite database for documents matching terms.`;
 
 export const schema = z
   .object({
-    term: z.string().min(1),
+    terms: z.array(z.string().min(1)),
     output: z.string().min(1),
     count: z.boolean(),
     mode: z.nativeEnum(ModeEnum),
@@ -57,8 +57,9 @@ export const schema = z
 
 export function builder(yargs: Argv) {
   return yargs
-    .positional('term', { type: 'string' })
-    .describe('term', 'Cross-field search term. Can be left blank.')
+    .positional('terms', { type: 'string' })
+    .array('terms')
+    .describe('terms', 'Cross-field search terms. Can be left blank.')
     .string('output')
     .alias('output', 'o')
     .describe('output', 'File path to save output to')
@@ -195,7 +196,7 @@ export async function handler(argv: InferArguments<typeof builder>) {
   const api = new scite.SearchApi(config);
 
   const data = await api.getSearchSearchGet({
-    term: argv.term,
+    term: argv.terms?.join(' '),
     mode: argv.mode,
     limit: argv.limit,
     offset: argv.offset,
