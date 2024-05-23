@@ -78,7 +78,7 @@ export function builder(yargs: Argv) {
 - question-answering : (Description not available).`,
     )
     .number('limit')
-    .default('limit', 10)
+    .default('limit', 100)
     .describe(
       'limit',
       'How many results to fetch. Up to 10,000 can be fetched at once.',
