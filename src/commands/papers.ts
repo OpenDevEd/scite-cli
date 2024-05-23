@@ -1,3 +1,4 @@
+import ora from 'ora';
 import { Argv } from 'yargs';
 import { z } from 'zod';
 import * as scite from '../client';
@@ -21,7 +22,7 @@ export function builder(yargs: Argv) {
     .string('output')
     .alias('output', 'o')
     .describe('output', 'File path to save output to')
-    .default('output', "output.json")
+    .default('output', 'output.json')
     .default('doi', undefined) // removes "[default: []]" from description
     .positional('doi', { type: 'string' })
     .array('doi')
@@ -32,10 +33,14 @@ export function builder(yargs: Argv) {
     .check((argv) => schema.parse(argv));
 }
 
-export async function handler(argv: InferArguments<typeof builder>) {
+async function main(argv: InferArguments<typeof builder>, spinner: ora.Ora) {
+  spinner.text = 'reading config';
+
   const config = await readConfig();
   const api = new scite.PapersApi(config);
   let data: scite.PapersResponse;
+
+  spinner.text = 'fetching data';
 
   if (argv.target) {
     data = await api.getTargetSourcesPapersSourcesTargetDoiGet({
@@ -50,5 +55,18 @@ export async function handler(argv: InferArguments<typeof builder>) {
     return { abstract: _abstract, ...rest };
   });
 
-  return output(papers, argv.output);
+  await output(papers, argv.output);
+
+  spinner.succeed(`saved to ${JSON.stringify(argv.output)}`);
+}
+
+export async function handler(argv: InferArguments<typeof builder>) {
+  const spinner = ora().start();
+
+  try {
+    await main(argv, spinner);
+  } catch (error) {
+    spinner.fail('error');
+    throw error;
+  }
 }

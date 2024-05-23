@@ -1,3 +1,4 @@
+import ora from 'ora';
 import querystring from 'querystring';
 import { addProp, isNullish, omit, omitBy, pipe } from 'remeda';
 import { Argv } from 'yargs';
@@ -195,10 +196,15 @@ export function builder(yargs: Argv) {
     .check((argv) => schema.parse(argv));
 }
 
-export async function handler(argv: InferArguments<typeof builder>) {
+async function main(argv: InferArguments<typeof builder>, spinner: ora.Ora) {
+  spinner.text = 'reading config';
+
   const config = await readConfig();
   const api = new scite.SearchApi(config);
   const term = argv.terms?.join(' ') || '';
+
+  spinner.text = 'expanding search terms';
+
   const query = await expand(term);
   const params = {
     term: argv.title || argv.abstract ? undefined : query,
@@ -247,11 +253,16 @@ export async function handler(argv: InferArguments<typeof builder>) {
     querystring.stringify,
   );
 
+  spinner.stop();
   console.log(`URL length: ${url.href.length}/8192`);
+  spinner.start();
 
+  spinner.text = 'fetching data';
   const data = await api.getSearchSearchGet(params);
 
+  spinner.stop();
   if (argv.count) return console.log(data.count);
+  spinner.start();
 
   const content = {
     meta: {
@@ -292,5 +303,18 @@ export async function handler(argv: InferArguments<typeof builder>) {
     ),
   };
 
-  return output(content, argv.output);
+  await output(content, argv.output);
+
+  spinner.succeed(`saved to ${JSON.stringify(argv.output)}`);
+}
+
+export async function handler(argv: InferArguments<typeof builder>) {
+  const spinner = ora().start();
+
+  try {
+    await main(argv, spinner);
+  } catch (error) {
+    spinner.fail('error');
+    throw error;
+  }
 }

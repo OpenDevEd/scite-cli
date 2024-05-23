@@ -1,4 +1,5 @@
 import fs from 'fs/promises';
+import ora from 'ora';
 import path from 'path';
 import { Argv } from 'yargs';
 import { z } from 'zod';
@@ -34,12 +35,15 @@ export function builder(yargs: Argv) {
     .check((argv) => schema.parse(argv));
 }
 
-export async function handler(argv: InferArguments<typeof builder>) {
+async function main(argv: InferArguments<typeof builder>, spinner: ora.Ora) {
+  spinner.text = 'reading config';
+
   const { command, key } = argv;
   const config = await readConfigFile();
 
   switch (command) {
     case CommandEnum.Set:
+      spinner.stop();
       config[key] = await ask(`Enter the value for ${JSON.stringify(key)}: `);
       config[key] = config[key].trim();
       break;
@@ -48,6 +52,7 @@ export async function handler(argv: InferArguments<typeof builder>) {
       if (!(key in config))
         throw new Error(`The value of ${JSON.stringify(key)} does not exist`);
 
+      spinner.stop();
       console.log(config[key]);
       return;
 
@@ -56,6 +61,22 @@ export async function handler(argv: InferArguments<typeof builder>) {
       break;
   }
 
+  spinner.text = 'updating config';
+  spinner.start();
+
   await fs.mkdir(path.dirname(configPath), { recursive: true });
   await fs.writeFile(configPath, serialize(config));
+
+  spinner.succeed(`updated ${JSON.stringify(key)}`);
+}
+
+export async function handler(argv: InferArguments<typeof builder>) {
+  const spinner = ora().start();
+
+  try {
+    await main(argv, spinner);
+  } catch (error) {
+    spinner.fail('error');
+    throw error;
+  }
 }
