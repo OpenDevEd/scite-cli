@@ -1,4 +1,5 @@
-import { omit } from 'remeda';
+import querystring from 'querystring';
+import { addProp, isNullish, omit, omitBy, pipe } from 'remeda';
 import { Argv } from 'yargs';
 import { z } from 'zod';
 import * as scite from '../client';
@@ -200,7 +201,7 @@ export async function handler(argv: InferArguments<typeof builder>) {
   const term = argv.terms?.join(' ') || '';
   const query = await expand(term);
   const params = {
-    term: query,
+    term: argv.title || argv.abstract ? undefined : query,
     mode: argv.mode,
     limit: argv.count ? 1 : argv.limit,
     offset: argv.offset,
@@ -235,6 +236,18 @@ export async function handler(argv: InferArguments<typeof builder>) {
     meshType: argv.meshType,
     aggregationsOptions: argv.aggregationsOptions,
   } satisfies scite.GetSearchSearchGetRequest;
+
+  const url = new URL('/search', config.basePath);
+
+  url.search = pipe(
+    params,
+    omit(['_abstract']),
+    addProp('abstract', params._abstract),
+    omitBy(isNullish),
+    querystring.stringify,
+  );
+
+  console.log(`URL length: ${url.href.length}/8192`);
 
   const data = await api.getSearchSearchGet(params);
 
@@ -274,10 +287,9 @@ export async function handler(argv: InferArguments<typeof builder>) {
         order: params.sortOrder,
       },
     },
-    results: data.hits.map((paper) => ({
-      ...omit(paper, ['_abstract']),
-      abstract: paper._abstract,
-    })),
+    results: data.hits.map((paper) =>
+      pipe(paper, omit(['_abstract']), addProp('abstract', paper._abstract)),
+    ),
   };
 
   return output(content, argv.output);
