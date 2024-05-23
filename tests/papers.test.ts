@@ -47,7 +47,12 @@ const cases = [
 it.each(cases)('$name', async ({ args, fetcher }) => {
   const data = await fetcher(args.doi);
 
-  await handler({ ...args, $0: 'scite-cli', _: ['papers'] });
+  await handler({
+    ...args,
+    output: 'output.json',
+    $0: 'scite-cli',
+    _: ['papers'],
+  });
 
   const calls = spy.mock.calls;
 
@@ -68,6 +73,7 @@ it("should throw when targeting a doi that doesn't exist", async () => {
   const promise = handler({
     doi: ['non-existant-doi'],
     target: true,
+    output: 'output.json',
     $0: 'scite-cli',
     _: ['papers'],
   });
@@ -81,6 +87,7 @@ it.each([
 ])('should throw when no DOIs are provided', async (args) => {
   let promise = handler({
     ...args,
+    output: 'output.json',
     $0: 'scite-cli',
     _: ['papers'],
   });

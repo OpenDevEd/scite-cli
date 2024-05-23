@@ -63,6 +63,7 @@ export function builder(yargs: Argv) {
     .string('output')
     .alias('output', 'o')
     .describe('output', 'File path to save output to')
+    .default('output', 'output.json')
     .boolean('count')
     .alias('count', 'c')
     .describe('count', 'Return the number of results that match the query.')

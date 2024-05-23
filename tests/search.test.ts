@@ -198,6 +198,7 @@ it.each(cases)('$name', async ({ args }) => {
     _: ['search'],
     offset: 0,
     limit: 10,
+    output: 'output.json',
     ...args,
     ...camelCaseKeys(args), // simulate yargs parsing
   });
@@ -254,6 +255,7 @@ it('--count should return the number of results that match the query', async () 
     offset: 0,
     limit: 10,
     count: true,
+    output: 'output.json',
   });
 
   const calls = spy.mock.calls;
