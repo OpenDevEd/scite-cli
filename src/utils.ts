@@ -60,7 +60,7 @@ export function isResponseError(error: unknown): error is scite.ResponseError {
  */
 export async function fromResponseError(err: scite.ResponseError) {
   const response = err.response;
-  const body = await response.json();
+  const body = await response.json().catch(() => response.statusText);
   const status = response.status;
   const message = `${err.message}
 Status: ${status}
