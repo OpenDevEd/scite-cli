@@ -1,3 +1,4 @@
+import { omit } from 'remeda';
 import { Argv } from 'yargs';
 import { z } from 'zod';
 import * as scite from '../client';
@@ -24,8 +25,8 @@ export const schema = z
     offset: z.number().int().nonnegative(),
     sort: z.nativeEnum(SortEnum),
     'sort-order': z.nativeEnum(SortOrderEnum),
-    title: z.string().min(1),
-    abstract: z.string().min(1),
+    title: z.boolean(),
+    abstract: z.boolean(),
     'date-from': ZodDateString(['YYYY-MM-DD', 'YYYY']),
     'date-to': ZodDateString(['YYYY-MM-DD', 'YYYY']),
     'citation-types': z.nativeEnum(CitationTypesEnum),
@@ -91,9 +92,10 @@ export function builder(yargs: Argv) {
     )
     .choices('sort-order', Object.values(SortOrderEnum))
     .describe('sort-order', 'Result sort order for selected sort.')
-    .string('title')
+    .default('sort-order', SortOrderEnum.Desc)
+    .boolean('title')
     .describe('title', 'Match text in publication title.')
-    .string('abstract')
+    .boolean('abstract')
     .describe('abstract', 'Match text in publication abstract.')
     .string('date-from')
     .describe(
@@ -195,16 +197,17 @@ export function builder(yargs: Argv) {
 export async function handler(argv: InferArguments<typeof builder>) {
   const config = await readConfig();
   const api = new scite.SearchApi(config);
-
-  const data = await api.getSearchSearchGet({
-    term: argv.terms && (await expand(argv.terms.join(' '))),
+  const term = argv.terms?.join(' ') || '';
+  const query = await expand(term);
+  const params = {
+    term: query,
     mode: argv.mode,
-    limit: argv.limit,
+    limit: argv.count ? 1 : argv.limit,
     offset: argv.offset,
     sort: argv.sort,
     sortOrder: argv.sortOrder,
-    title: argv.title,
-    _abstract: argv.abstract,
+    title: argv.title ? query : undefined,
+    _abstract: argv.abstract ? query : undefined,
     dateFrom: argv.dateFrom,
     dateTo: argv.dateTo,
     citationTypes: argv.citationTypes,
@@ -231,14 +234,51 @@ export async function handler(argv: InferArguments<typeof builder>) {
     substances: argv.substances,
     meshType: argv.meshType,
     aggregationsOptions: argv.aggregationsOptions,
-  });
+  } satisfies scite.GetSearchSearchGetRequest;
+
+  const data = await api.getSearchSearchGet(params);
 
   if (argv.count) return console.log(data.count);
 
-  const papers = data.hits.map((paper) => {
-    const { _abstract, ...rest } = paper;
-    return { abstract: _abstract, ...rest };
-  });
+  const content = {
+    meta: {
+      version: 'OpenDevEd_jsonUploaderV01',
+      query: query,
+      searchTerm: term,
+      totalResults: data.count,
+      source: 'Scite',
+      sourceFormat: 'original',
+      date: new Date().toISOString(),
+      searchField: argv.title
+        ? argv.abstract
+          ? 'title_abstract_keywords'
+          : 'title'
+        : 'fulltext',
+      page: Math.floor(params.offset / params.limit) + 1,
+      resultsPerPage: params.limit,
+      firstItem: params.offset + 1,
+      startingPage: 1,
+      endingPage: Math.ceil(data.count / params.limit),
+      filters: omit(params, [
+        'limit',
+        'offset',
+        'sort',
+        'sortOrder',
+        '_abstract',
+        'term',
+        'title',
+      ]),
+      groupBy: '',
+      sortBy: {
+        field: params.sort || 'relevance',
+        order: params.sortOrder,
+      },
+    },
+    results: data.hits.map((paper) => ({
+      ...omit(paper, ['_abstract']),
+      abstract: paper._abstract,
+    })),
+  };
 
-  return output(papers, argv.output);
+  return output(content, argv.output);
 }
