@@ -233,7 +233,7 @@ export async function handler(argv: InferArguments<typeof builder>) {
     aggregationsOptions: argv.aggregationsOptions,
   });
 
-  if (argv.count) return output(data.count, argv.output);
+  if (argv.count) return console.log(data.count);
 
   const papers = data.hits.map((paper) => {
     const { _abstract, ...rest } = paper;
