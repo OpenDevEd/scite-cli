@@ -75,6 +75,7 @@ export async function handler(argv: InferArguments<typeof builder>) {
 
   try {
     await main(argv, spinner);
+    spinner.stop();
   } catch (error) {
     spinner.fail('error');
     throw error;
