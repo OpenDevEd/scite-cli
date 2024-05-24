@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import ora from 'ora';
 import querystring from 'querystring';
 import { addProp, isNullish, omit, omitBy, pipe } from 'remeda';
@@ -267,6 +268,7 @@ async function main(argv: InferArguments<typeof builder>, spinner: ora.Ora) {
   const content = {
     meta: {
       version: 'OpenDevEd_jsonUploaderV01',
+      searchID: crypto.randomUUID(),
       query: query,
       searchTerm: term,
       totalResults: data.count,
