@@ -270,6 +270,7 @@ async function main(argv: InferArguments<typeof builder>, spinner: ora.Ora) {
       version: 'OpenDevEd_jsonUploaderV01',
       searchID: crypto.randomUUID(),
       query: query,
+      queryUrl: url.href,
       searchTerm: term,
       totalResults: data.count,
       source: 'Scite',
