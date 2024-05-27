@@ -71,6 +71,10 @@ export function builder(yargs: Argv) {
     .boolean('count')
     .alias('count', 'c')
     .describe('count', 'Return the number of results that match the query.')
+    .number('chunk-size')
+    .alias('chunk-size', 'chunks')
+    .alias('chunk-size', 'chunkSize')
+    .describe('chunk-size', 'Number of results to fetch per request.')
     .choices('mode', Object.values(ModeEnum))
     .describe(
       'mode',
@@ -198,6 +202,9 @@ export function builder(yargs: Argv) {
 }
 
 async function main(argv: InferArguments<typeof builder>, spinner: ora.Ora) {
+  if ('chunk-size' in argv)
+    return spinner.fail('chunk-size is not implemented yet');
+
   spinner.text = 'reading config';
 
   const config = await readConfig();
