@@ -209,11 +209,11 @@ async function main(argv: InferArguments<typeof builder>, spinner: ora.Ora) {
 
   const config = await readConfig();
   const api = new scite.SearchApi(config);
-  const term = argv.terms?.join(' ') || '';
+  const terms = argv.terms || [];
 
   spinner.text = 'expanding search terms';
 
-  const query = await expand(term);
+  const query = await expand(terms);
   const params = {
     term: argv.title || argv.abstract ? undefined : query,
     mode: argv.mode,
@@ -278,7 +278,7 @@ async function main(argv: InferArguments<typeof builder>, spinner: ora.Ora) {
       searchID: crypto.randomUUID(),
       query: query,
       queryUrl: url.href,
-      searchTerm: term,
+      searchTerm: terms.join(' '),
       totalResults: data.count,
       source: 'Scite',
       sourceFormat: 'original',

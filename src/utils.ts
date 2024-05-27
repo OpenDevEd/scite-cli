@@ -125,24 +125,77 @@ export async function output(data: unknown, filepath?: string) {
   }
 }
 
-export async function expand(input: string) {
-  const regex = /([a-zA-Z0-9_-]+)\.\.\./;
-  let match = input.match(regex);
+export async function expand(query: string[]) {
+  let searchQuery = '';
 
-  while (match) {
-    const [matched, basename] = match;
-    const filepath = path.join('searchterms', basename + '.txt');
-    let content: string;
+  for (let i = 0; i < query.length; i++) {
+    const match = query[i].match(/(\w+)\.\.\./);
+    if (match) {
+      const key = match[1];
 
-    try {
-      content = await fs.readFile(filepath, 'utf8');
-    } catch (error) {
-      content = '';
+      let file = 'searchterms/' + key + '.txt';
+      if (!(await exists(file))) {
+        file = `${os.homedir()}/.config/scite-cli/searchterms/${key}.txt`;
+      }
+      let result = (await exists(file)) ? await fs.readFile(file, 'utf8') : key;
+      const resultarr = result.split(/\r?\n/);
+      result = '';
+      let operator = '';
+      let useoperator = false;
+      for (let j = 0; j < resultarr.length; j++) {
+        const match = resultarr[j].match(/#(OR|AND)\s*$/);
+
+        if (match) {
+          operator = ' ' + match[1] + ' ';
+          useoperator = true;
+        }
+        if (resultarr[j].match(/#(-)\s*$/)) {
+          useoperator = true;
+          operator = ' ';
+        }
+        const term = sanitise(resultarr[j].replace(/#.+$/g, ''));
+        if (term != '') {
+          result +=
+            (result.match(/[\w")]\s+$/) && !term.match(/^\s*\)/)
+              ? operator
+              : '') +
+            (useoperator ? quoteIfNeeded(term) : term) +
+            ' ';
+        }
+      }
+      result = query[i].replace(RegExp(key + '\\.\\.\\.'), result);
+      searchQuery += ` ${result}`;
+    } else {
+      searchQuery += ` ${quoteIfNeeded(query[i])} `;
     }
-
-    input = input.replace(matched, content.replace(/\s/g, ' '));
-    match = input.match(regex);
   }
 
-  return input;
+  searchQuery = searchQuery.replace(/\[/gs, '(');
+  searchQuery = searchQuery.replace(/\]/gs, ')');
+  return searchQuery;
+}
+
+async function exists(f: string) {
+  try {
+    await fs.stat(f);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function sanitise(str: string) {
+  let term = str;
+  term = term.replace(/\t+/gs, ' ');
+  term = term.replace(/ +/gs, ' ');
+  term = term.replace(/^ +/gs, '');
+  term = term.replace(/ +$/gs, '');
+  return term;
+}
+
+function quoteIfNeeded(term: string) {
+  if (term.match(/ /) && !term.match(/^".*"$/)) {
+    term = `"${term}"`;
+  }
+  return term;
 }
