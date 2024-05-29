@@ -22,6 +22,7 @@ export const schema = z
   .object({
     terms: z.array(z.string().min(1)),
     output: z.string().min(1),
+    save: z.string().min(1),
     count: z.boolean(),
     mode: z.nativeEnum(ModeEnum),
     limit: z.number().int().positive().max(10000),
@@ -68,6 +69,12 @@ export function builder(yargs: Argv) {
     .alias('output', 'o')
     .describe('output', 'File path to save output to')
     .default('output', 'output.json')
+    .string('save')
+    .alias('save', 's')
+    .describe(
+      'save',
+      'File name to save output to, .json extension will be added.',
+    )
     .boolean('count')
     .alias('count', 'c')
     .describe('count', 'Return the number of results that match the query.')
@@ -313,9 +320,11 @@ async function main(argv: InferArguments<typeof builder>, spinner: ora.Ora) {
     ),
   };
 
-  await output(content, argv.output);
+  const file = argv.save ? argv.save + '.json' : argv.output;
 
-  spinner.succeed(`saved to ${JSON.stringify(argv.output)}`);
+  await output(content, file);
+
+  spinner.succeed(`saved to ${JSON.stringify(file)}`);
 }
 
 export async function handler(argv: InferArguments<typeof builder>) {
