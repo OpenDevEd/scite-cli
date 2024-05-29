@@ -21,6 +21,7 @@ export function builder(yargs: Argv) {
   return yargs
     .string('output')
     .alias('output', 'o')
+    .alias('save','s')
     .describe('output', 'File path to save output to')
     .default('output', 'output.json')
     .default('doi', undefined) // removes "[default: []]" from description
