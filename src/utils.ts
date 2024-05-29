@@ -119,6 +119,9 @@ export function ask(prompt: string) {
  */
 export async function output(data: unknown, filepath?: string) {
   if (filepath) {
+    if (filepath && !filepath.endsWith('.json')) {
+      filepath += '.json';
+    }
     await fs.writeFile(filepath, serialize(data));
   } else {
     console.log(serialize(data));
