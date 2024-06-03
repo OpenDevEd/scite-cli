@@ -77,7 +77,21 @@ Body: ${serialize(body)}`;
 export function ZodDateString(format: string | string[]) {
   format = Array.isArray(format) ? format : [format];
 
-  const isValid = (date: string) => dayjs(date, format, true).isValid();
+  const isValid = (date: string) => {
+    const result = dayjs(date, format, true).isValid();
+
+    if (!result) {
+      if (format.includes('YYYY-YYYY') && /^\d{4}-\d{4}$/.test(date))
+        return true;
+      if (
+        format.includes('[YYYY-MM-DD,YYYY-MM-DD]') &&
+        /^\[\d{4}-\d{2}-\d{2},\d{4}-\d{2}-\d{2}\]$/.test(date)
+      )
+        return true;
+    }
+
+    return result;
+  };
   const stringified = format.map((f) => JSON.stringify(f));
   const message = `Date must be in the format ${stringified.join(' or ')} and must be a valid date.`;
 
@@ -201,4 +215,37 @@ function quoteIfNeeded(term: string) {
     term = `"${term}"`;
   }
   return term;
+}
+
+export function extractDateRange(date?: string) {
+  if (!date) return {};
+
+  const formats = [
+    'YYYY',
+    'YYYY-',
+    '-YYYY',
+    'YYYY-YYYY',
+    '[YYYY-MM-DD,YYYY-MM-DD]',
+  ];
+  const schemas = formats.map(ZodDateString);
+  const results = schemas.map((schema) => schema.safeParse(date).success);
+  const index = results.findIndex((result) => result);
+
+  if (index === -1) return {};
+
+  switch (index) {
+    case 0:
+      return { dateFrom: date, dateTo: date };
+    case 1:
+      return { dateFrom: date.slice(0, -1) };
+    case 2:
+      return { dateTo: date.slice(1) };
+    case 3:
+      return { dateFrom: date.split('-')[0], dateTo: date.split('-')[1] };
+    case 4:
+      return {
+        dateFrom: date.split(',')[0].slice(1),
+        dateTo: date.split(',')[1].slice(0, -1),
+      };
+  }
 }

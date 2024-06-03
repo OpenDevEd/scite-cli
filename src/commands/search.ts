@@ -12,7 +12,13 @@ import {
   GetSearchSearchGetSortOrderEnum as SortOrderEnum,
 } from '../client';
 import { InferArguments } from '../types';
-import { ZodDateString, expand, output, readConfig } from '../utils';
+import {
+  ZodDateString,
+  expand,
+  extractDateRange,
+  output,
+  readConfig,
+} from '../utils';
 
 export const command = 'search [terms...]';
 
@@ -33,6 +39,13 @@ export const schema = z
     abstract: z.boolean(),
     'date-from': ZodDateString(['YYYY-MM-DD', 'YYYY']),
     'date-to': ZodDateString(['YYYY-MM-DD', 'YYYY']),
+    date: ZodDateString([
+      'YYYY',
+      'YYYY-',
+      '-YYYY',
+      'YYYY-YYYY',
+      '[YYYY-MM-DD,YYYY-MM-DD]',
+    ]),
     'citation-types': z.nativeEnum(CitationTypesEnum),
     'has-retraction': z.boolean(),
     'has-concern': z.boolean(),
@@ -120,6 +133,11 @@ export function builder(yargs: Argv) {
     .describe(
       'date-to',
       'Match publications published up to this date (YYYY-MM-DD or YYYY).',
+    )
+    .string('date')
+    .describe(
+      'date',
+      'Match publications published within this date range (YYYY, YYYY-, -YYYY, YYYY-YYYY, [YYYY-MM-DD,YYYY-MM-DD]).',
     )
     .choices('citation-types', Object.values(CitationTypesEnum))
     .array('citation-types')
@@ -232,6 +250,7 @@ async function main(argv: InferArguments<typeof builder>, spinner: ora.Ora) {
     _abstract: argv.abstract ? query : undefined,
     dateFrom: argv.dateFrom,
     dateTo: argv.dateTo,
+    ...extractDateRange(argv.date),
     citationTypes: argv.citationTypes,
     hasRetraction: argv.hasRetraction,
     hasConcern: argv.hasConcern,
