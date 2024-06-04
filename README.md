@@ -10,28 +10,26 @@ Please refer to the subsequent sections for details on how to install and use `s
 
 # Examples:
 
-The CLI directs JSON data to stdout. This allows you to manipulate the data as needed, such as saving it to a file.
-
 Retrieve paper metadata by DOI(s):
 
 ```bash
 # one paper
-scite-cli papers 10.22323/1.380.0183 > out.json
+scite-cli papers 10.22323/1.380.0183
 
 # multiple papers
-scite-cli papers 10.1002/bin.1697 10.1002/best.202271004 > out.json
+scite-cli papers 10.1002/bin.1697 10.1002/best.202271004
 ```
 
 Get papers citing a given DOI:
 
 ```bash
-scite-cli papers --target 10.1002/bin.1697 > out.json
+scite-cli papers --target 10.1002/bin.1697
 ```
 
 Search the scite database for documents matching a term:
 
 ```bash
-scite-cli search "climate change" --limit 5 > out.json
+scite-cli search "climate change" --limit 5
 ```
 
 # Getting Help
@@ -39,10 +37,10 @@ scite-cli search "climate change" --limit 5 > out.json
 You can get help for any subcommand in the `scite-cli` tool by using the `--help` option.
 This will display a help message that describes how to use the subcommand and what options are available.
 
-For example, to get help for the `papers` subcommand, you can run:
+For example, to get help for the `search` subcommand, you can run:
 
 ```bash
-scite-cli papers --help
+scite-cli search --help
 ```
 
 You can also enable terminal completion. This feature provides you with command and option suggestions as you type in your terminal.
